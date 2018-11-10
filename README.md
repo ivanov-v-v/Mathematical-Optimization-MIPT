@@ -1,7 +1,7 @@
 # Mathematical-Optimization-MIPT
 Homework assignments in mathematical optimization, MIPT, 2018-2019.  
 ## [Fall 2018](https://github.com/amkatrutsa/seminars-fivt)
-I consistently received the best score among fellow students.
+I consistently received the best score among fellow students throughout the course.
 ## Syllabus
 
 1. [Introduction. Convex sets and cones](01-IntroConvex/Seminar1.pdf)
