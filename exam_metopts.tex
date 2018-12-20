@@ -262,7 +262,7 @@
 		\begin{align*}
 			y_{1} &:= x_{0},\ t_{1} := 1,\ k = 1\\
 			x_{k} &:= \underset{\alpha_k g}{\mathrm{prox}}(y_k - \alpha_k \nabla h(y_k))\\
-			t_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
+			xt_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
 			y_{k+1} &:= x_{k} + \frac{t_k - 1}{t_{k+1}}(x_k - x_{k-1})
 		\end{align*}
 	\end{definition}
@@ -731,5 +731,25 @@
 		В частности, такой подход позволяет решать задачу о пересечении эллипсоидов в $ \Real^n $.
 	\end{enumerate}
 	\subsection{Реласкация задачи MAXCUT}
+	\textbf{Задача:} найти макс.разрез в неориентированном графе $ G = (V, E) $ с весами рёбер $ w_{ij} $.
+	\begin{align*}
+		\max& \frac{1}{4} \sum_{i,j=1}^{n} (1 - x_i x_j) w_{ij}\\
+		\text{s.t. }& x_{i} \in \{-1, 1\}
+	\end{align*}
+	У этой задачи есть SDP-релаксация: 
+	$$
+		X = xx^{\top} \to X \succeq xx^\top,\ X_{ii} = 1
+	$$
+	\begin{align*}
+		\max& \frac{1}{4} \sum_{i,j=1}^{n} (1 - X_{ij}) w_{ij}\\
+		\text{s.t. }& X_{ii} = 1\\
+								& X \succeq 0
+	\end{align*}
+	Пусть $ X = V^{\top} V $, а $ r $ — случайный вектор, равномерно распределённый на сфере.\\
+	Если $ S = \{ i\ |\ r^\top v_i \ge 0 \} $, то 
+	$$
+		\E (\text{разрез}) \ge 0.876 \cdot MAXCUT
+	$$
+	В целом, SDP часто применяется в комбинаторной оптимизации.
 	\section{Методы внутренней точки}
 \end{document}     
