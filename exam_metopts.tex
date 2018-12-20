@@ -64,7 +64,7 @@
 \theoremstyle{definition}
 \newtheorem{theorem}{Теорема}[section]
 \newtheorem{lemma}{Лемма}[section]
-\newtheorem{statement}{Утверждение}
+\newtheorem{statement}{Утверждение}[section]
 \newtheorem*{corollary}{Следствие} 
 \theoremstyle{definition}
 \newtheorem*{definition}{Определение}
@@ -261,7 +261,7 @@
 		Аналог метода Нестерова для проксимального градиентного метода:
 		\begin{align*}
 			y_{1} &:= x_{0},\ t_{1} := 1,\ k = 1\\
-			x_{k} &:= \underset{\alpha_k g}{y_k - \alpha_k \nabla h(y_k)}\\
+			x_{k} &:= y_k - \alpha_k \nabla h(y_k)\\
 			y_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
 			y_{k+1} &:= x_{k} + \frac{t_k - 1}{t_{k+1}}(x_k - x_{k-1})
 		\end{align*}
@@ -417,7 +417,8 @@
 							&\text{s.t. } 
 							\begin{aligned} 
 								B^{\top} &= B\\ 
-								B s_k &= y_k
+								B s_k &= y_k\\
+								B &\succeq 0
 							\end{aligned}
 	\end{align*}
 	Замкнутый вид решения, откуда $ H_{k+1} $ получается по формуле ШМВ:
@@ -432,7 +433,8 @@
 		&\text{s.t. } 
 		\begin{aligned} 
 		H^{\top} &= H\\ 
-		H y_k &= s_k
+		H y_k &= s_k\\
+		H &\succeq 0
 		\end{aligned}
 	\end{align*}
 	Замкнутый вид решения, откуда $ H_{k+1} $ получается по формуле ШМВ:
@@ -456,7 +458,7 @@
 		\item Для него нет разработанной теории сходимости и точных оценок.
 		\item Не любой способ выбора шага гарантирует, что $ y_k^\top s_k > 0 $.
 	\end{itemize}
-	\section{Линейное программирование}
+	\section{Линейное программирование (LP)}
 	\begin{align*}
 		\min_{x}&\ c^\top x\\
 		\text{s.t. }& Ax \preceq 0,\\
@@ -527,6 +529,7 @@
 		\item Однако на практике сложность чаще всего пропорциональна количеству ограничений и симплекс-метод сходится быстро.
 		\item Почему это так, неясно до сих пор.
 	\end{itemize}
+	Занимательный факт: в невырожденных задачах линейного программирования всегда выполнена сильная двойственность. При этом в двойственной задаче число переменных совпадает с числом ограничений в прямой задаче, что может сильно понизить размерность. Но неясно, как по двойственным переменным восстановить ответ прямой задачи, в нашем курсе это не обсуждалось.
 	\subsection{Двухфазный симплекс-метод}
 	\noindent \textbf{Проблема:} выбор начальной точки неочевиден.\\
 	\textbf{Решение:} вспомогательная. задача оптимизации (при условии $ b \succeq 0 $)\footnote{А если это не так? Что тогда? Всегда ли есть сведение к такому виду?}:
@@ -537,8 +540,8 @@
 	\end{align*}
 	Начальная точка для такой задачи очевидна — $ z = 0,\ y = b $.
 	\begin{itemize}[$\diamond$]
-		\item Если оптимальное значение функции в этой задаче **не равно** $0$, то допустимое множество исходной задачи пусто.
-		\item Если оптимальное значение функции в этой задаче **равно** $0$, то $y^* = 0$ и $x_0 = z^*$.
+		\item Если оптимальное значение функции в этой задаче \textbf{не равно} $0$, то допустимое множество исходной задачи пусто.
+		\item Если оптимальное значение функции в этой задаче \textbf{равно} $0$, то $y^* = 0$ и $x_0 = z^*$.
 	\end{itemize}
 	\subsection{М-метод}
 	\textbf{Идея: } объединить двухфазный симплекс-метод в однофазный
@@ -548,6 +551,185 @@
 		& z \geq 0, \; y \geq 0
 	\end{align*} 
 	$M$ - произвольное большое положительное число.\footnote{Подозрительно похоже на регуляризацию.}
-	\section{Полуопределённое программирование}
+	\section{Полуопределённое программирование (SDP)}
+	Постановка задачи полуопределённого (semidefinite) программирования:
+	\begin{align*}
+		\min&\ c^{\top} x\\
+		\text{s.t. }& F_0 + \sum_{i=1}^{m} x_i F_i \succeq 0\\
+		&F_i \in \Real^{n \times n}
+	\end{align*}
+	К такой постановке сводятся задачи LP:
+		\begin{equation*}
+		\begin{aligned}[c]
+			\min&\ c^{\top} x\\
+			\text{s.t. }& Ax + b \succeq 0
+		\end{aligned}
+		\quad \longrightarrow \quad
+		\begin{aligned}[c]
+			\min&\ c^{\top} x\\
+			\text{s.t. }& \mathrm{diag}(b) + \sum_{i=1}^{n} x_i \mathrm{diag}(A_{:, i}) \succeq 0
+		\end{aligned}
+	\end{equation*}
+	Тем не менее, SDP более выразительно, чем LP: 
+	\begin{equation*}
+		\begin{aligned}
+			\min_{x}& \frac{\langle c, x \rangle^2}{\langle d, x \rangle}\\
+			\text{s.t. }& Ax + b \succeq 0
+		\end{aligned} \quad\longrightarrow\quad
+		\begin{aligned}
+			\min_{x}&\ t\\
+			\text{s.t. }& Ax + b \succeq 0,\\
+			&\frac{\langle c, x \rangle^2}{\langle d, x \rangle} \le t,\\
+			&t \ge 0
+		\end{aligned} \quad\longrightarrow\quad
+		\begin{aligned}
+			\min_{x}&\ t\\
+			\text{s.t. }& \begin{bmatrix}
+				\mathrm{diag}(Ax - b) &0 &0\\
+				0 & t & c^{\top} x\\
+				0 & c^{\top} x & d^{\top} x
+			\end{bmatrix} \succeq 0
+		\end{aligned} 
+	\end{equation*}
+	\noindent Такую задачу в форме LP уже не записать.\\
+	Важным инструментом при сведении задачи к такой форме является дополнение по Шуру:
+	\begin{statement}[\textit{Критерий положительной полуопределённости}]$  $\\
+		Пусть дана блочно-диагональная матрица $M$:
+		$$
+			M = \begin{bmatrix} 
+				A & B\\ C & D
+			\end{bmatrix}
+		$$
+		Дополнением по Шуру блока $ D $ называется матрица $ A - BD^{-1}C $.\\
+		Аналогично для блока $ A $: $ D - CA^{-1}B $.\\
+		Тогда верно, что: симметричная матрица $ M \succeq 0 \iff D \succeq 0,\ A - BD^{-1}B^{\top} \succeq 0$.
+	\end{statement}
+	\subsection{Двойственность в SDP-задачах}
+	\begin{statement}[\textit{О виде двойственной задачи}]
+		$$
+			\begin{aligned}
+				\min&\ c^{\top} x\\
+				\text{s.t. }& F_0 + \sum_{i=1}^{m} x_i F_i \succeq 0
+			\end{aligned} \quad\longrightarrow\quad 
+			\begin{aligned}
+				\max&\ -\tr (F_0 Z)\\
+				\text{s.t. }& \tr (F_i Z) = c_i\\
+				& Z \succeq 0 
+			\end{aligned}
+		$$
+	\end{statement}
+	\begin{proof}
+		Вид Лагранжиана следует из условий ККТ:
+		\begin{align*}
+			L(x, Z) &= c^\top x - \tr\left (Z^{\top}\left (F_0 + \sum_{i=1}^{m} x_i F_i \right )\right ) =\\
+			&= c^\top x - \tr (Z^\top F_0) - \sum_{i=1}^{m} x_i \cdot \tr\left (Z^{\top} F_i \right ) \\
+			\nabla_{x} L(x, Z) &= c - \begin{bmatrix}
+				\tr\left (Z^{\top} F_1 \right ) &
+				\ldots &
+				\tr\left (Z^{\top} F_m \right )
+			\end{bmatrix}^{\top} = 0 \\&\iff \tr\left (Z^{\top} F_i \right ) = c_i
+		\end{align*}
+		Отсюда:
+		\begin{align*}
+			L(x^*, Z) &= \inf\limits_{x} \left (c^\top x - \tr (Z^\top F_0) - \sum_{i=1}^{m} x_i \cdot \tr\left (Z^{\top} F_i \right )\right ) =\\
+			&= - \tr (Z^\top F_0) =: g(Z),\ Z \succeq 0
+		\end{align*}
+		Итоговый вид двойственной задачи: 
+		$$
+			\begin{aligned}
+				\max&\ -\tr (F_0 W)\\
+				\text{s.t. }& \tr (F_i W) = c_i\\
+				& W \succeq 0 
+			\end{aligned}
+		$$
+		где $ W := Z^\top $. 
+	\end{proof}
+	\noindent Сильной двойственности может не быть (хуже, чем LP), но зазор двойственности всегда конечен.
+	\begin{theorem}[\textit{О сильной двойственности в SDP}]$  $\\
+		Для SDP-задачи выполнена сильная двойственность, если хотя бы одно из условий выполнено:
+		\begin{enumerate}[$\diamond$]
+			\item Прямая задача строго допустима, т.е. $ \exists x: F(x) \succ 0 $.
+			\item Двойственная задача строго допустима, т.е. $ \exists Z \in S^n_{++} \forall i = 1,\ldots,m: \tr(ZF_i) = c_i $.
+		\end{enumerate}
+	\end{theorem}
+	\subsection{Минимизация спектрального радиуса}
+	Пусть $ A(x) = A_0 + \sum_{i=1}^{m} x_i A_i,\ \forall j > 0: A_j = A_j^\top $ и поставлена задача минимизации:
+	$$
+		\min_{x} \lambda_{\max}(A(x))
+	$$
+	может быть переписана в SDP-виде:
+	\begin{align*}
+		\min_{t, x}&\ t\\ 
+		\text{s.t. }& tI - A(x) \succeq 0
+	\end{align*}
+	Если матрица несимметрична/неквадратна, то минимизируется макс. сингулярное значение:
+	$$
+		\min_{x} \sigma_{\max}(A(x))
+	$$
+	что в SDP-терминах записывается как:
+	\begin{align*}
+		\min_{t, x}&\ t\\ 
+		\text{s.t. }& 
+			\begin{bmatrix} 
+				tI & A(x)\\
+				A^\top(x) & tI
+			\end{bmatrix} \succeq 0
+	\end{align*}
+	\subsection{Поиск описанного эллипсоида минимального объёма}
+	Пусть дан набор точек в $ \Real^d $ и нужно найти описанный вокруг них эллипс минимальной площади.\\
+	Здесь нужно воспользоваться тем, что эллипс можно задать аффинным преобразованием:
+	$$
+		\{ x\ |\ \| x \|_2^2 \le 1 \} \to \{ u\ |\ \| u \|_2^2 \le 1,\ u = Ax + b \}
+	$$
+	Площадь при этом увеличивается в $ \det(A^{-1}) $ раз, откуда возникает задача минимизации:
+	\begin{align*}
+		\min_{A, b}& -\log \det (A)\\
+		\text{s.t. }& \| Ax_i + b \|_2^2 \le 1,\\
+								& A \succ 0
+	\end{align*}
+	А уже ограничение на норму переписывается в SDP-виде:
+	$$
+		\| Ax_i + b \|_2^2 \le 1 \iff 
+		\begin{bmatrix}
+			I & Ax_i + b\\
+			(Ax_i + b)^{\top} & 1 
+		\end{bmatrix} \succeq 0
+	$$
+	\subsection{Приближённое решение невыпуклых задач}
+	В курсе рассматривалась только задача вида:
+	\begin{align*}
+		\min& f_0(x)\\
+		\text{s.t. }& f_i(x) \le 0\\
+	\end{align*}
+	где $ f_i(x) \le x^{\top} A_i x + 2 b_i^\top x + c_i $, но матрицы $ A_i $ неопределены.
+	\begin{enumerate}
+		\item Перепишем ограничения в матричном виде:
+		$$
+			f_i(x) = 
+			\begin{bmatrix}
+				x & 1
+			\end{bmatrix}^{\top}
+			\begin{bmatrix}
+				A_i & b_i\\
+				b_i^\top & c_i
+			\end{bmatrix}
+			\begin{bmatrix}
+				x \\ 1
+			\end{bmatrix} \le 0
+		$$ 
+		\item Пусть $x$ допустимая точка в исходной задаче, а $t, \tau_1, \ldots, \tau_M$ допустимые точки для введённой задаче, тогда можно выписать SDP-задачу:
+		\begin{align*}
+			& \max t\\
+			\text{s.t. } & \tau_i \geq 0\\
+			& \begin{bmatrix} A_0 & b_0 \\ b_0^{\top} & c_0 - t \end{bmatrix} + \tau_1 \begin{bmatrix} A_1 & b_1 \\ b_1^{\top} & c_1 \end{bmatrix} + \ldots + \tau_M \begin{bmatrix} A_M & b_M \\ b_M^{\top} & c_M \end{bmatrix} \succeq 0
+		\end{align*}
+		\begin{align*}
+			& 0 \leq \begin{bmatrix} x \\ 1 \end{bmatrix}^{\top} \left(\begin{bmatrix} A_0 & b_0\\ b_0 & c_0 - t \end{bmatrix} + \tau_1 \begin{bmatrix} A_1 & b_1\\ b^{\top}_1 & c_1 \end{bmatrix} \ldots + \tau_M \begin{bmatrix} A_M & b_M \\ b_M^{\top} & c_M \end{bmatrix}\right) \begin{bmatrix} x \\ 1 \end{bmatrix} = \\
+			& 0 \leq f_0(x) - t + \tau_1 f_1(x) + \ldots + \tau_Mf_M(x) \leq f_0(x) - t 
+		\end{align*}
+		Отсюда $ f_{0}(x) \ge t $, т.е. $\max t = \min f_{0}(x)$, задачи эквивалентны.\\
+		В частности, такой подход позволяет решать задачу о пересечении эллипсоидов в $ \Real^n $.
+	\end{enumerate}
+	\subsection{Реласкация задачи MAXCUT}
 	\section{Методы внутренней точки}
 \end{document}     
