@@ -1,0 +1,462 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[a4paper, left=20mm, right=20mm, top=30mm, bottom=20mm]{geometry}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,epsfig,epstopdf,titling,url,array,tkz-berge}
+\usepackage[T2A,T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{xparse}
+\usepackage[shortlabels]{enumitem}
+\usepackage{float}
+\usepackage{cancel}
+\usepackage{multicol}
+\usepackage{listings}
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+\def\E{\mathbb{E}}
+\def\Var{\mathrm{Var}}
+\def\cov{\mathrm{cov}}
+\def\corr{\mathrm{corr}}
+\def\salg{\mathcal{F}}
+\def\P{\mathrm{P}}
+\def\borel{\mathcal{B}}
+\def\cantor{\mathcal{C}}
+
+\def\eps{\varepsilon}
+\def\phi{\varphi}
+\def\Real{\mathbb{R}}
+\def\Proj{\mathbb{P}}
+\def\Hyper{\mathbb{H}}
+\def\Integer{\mathbb{Z}}
+\def\Natural{\mathbb{N}}
+\def\Complex{\mathbb{C}}
+\def\Rational{\mathbb{Q}}
+\def \tr{\mbox{tr}}
+\def \grad{\nabla}
+\def \mse{\mbox{MSE}}
+\def \etheta{\widehat{\theta}}
+\def \esigma{\widehat{\sigma}}
+
+\def\le{\leqslant}
+\def\ge{\geqslant}
+
+\usepackage{eucal}
+\usepackage{stackengine,graphicx,amssymb}
+\stackMath
+\newcommand\frightarrow{\scalebox{1}[.3]{$\rule[.45ex]{2ex}{1.5pt}%
+		\kern-.2ex{\blacktriangleright}$}}
+\newcommand\darrow[1][]{\mathrel{\stackon[1pt]{\stackanchor[1pt]{\frightarrow}{\frightarrow}}{\scriptstyle#1}}}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\renewcommand{\thesection}{\arabic{section}}
+
+
+\theoremstyle{definition}
+\newtheorem{problem}{Задача}
+\newtheorem*{uproblem}{Задача}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{lemma}{Лемма}[section]
+\newtheorem{statement}{Утверждение}
+\newtheorem*{corollary}{Следствие} 
+\theoremstyle{definition}
+\newtheorem*{definition}{Определение}
+\newtheorem{example}{Пример}[section]
+
+\newcommand\mydots{\makebox[1em][c]{.\hfil.\hfil.}}
+\renewcommand{\thesection}{\arabic{section}}
+
+\title{Теория к зачёту по методам оптимизации}
+\author{Иванов Вячеслав, группа 699}
+
+\begin{document}
+	\setlength{\parindent}{1cm}
+	{\let\newpage\relax\maketitle}
+	\tableofcontents
+	\newpage
+	\section{Безусловные методы первого порядка}
+	\subsection{Градиентный спуск}
+	Основная формула\footnote{Дискретизация ОДУ $ \stackrel{.}{x}(t) = -\nabla f(x) $}:
+	$$
+		x_{k+1} = x_{k} - \alpha_k \nabla f(x_k)
+	$$
+	\begin{theorem}[\textit{Выпуклая функция, оценка сверху}]$  $\\
+		Пусть целевая функция $ f $ выпуклая с липшицевым градиентом, а $ \alpha = \frac{1}{L} $. Тогда:
+		$$
+			f(x_{k+1}) - f^{*} \le \frac{2L \| x - x_0 \|^2_2}{k+4} = \mathcal{O} \left (\frac{1}{k}\right )
+		$$
+		Т.е. сходимость сублинейная в смысле$ \| x_{k+1} - x^{*} \|_2 \le Ck^{\alpha},\ \alpha < 0 $.\\
+		Т.е. для достижения точности $ \eps $ нужно $ \mathcal{O}\left( \frac{1}{\eps} \right) $ итераций.
+	\end{theorem}
+	\begin{theorem}[\textit{Сильно выпуклая функция, оценка сверху}]$ $\\
+		Пусть $ f $ сильно выпукла с липшицевым градиентом, а $ \alpha = \frac{2}{L + \mu} $. Тогда:
+		$$
+			f(x_k) - f^{*} \le \frac{L}{2} \left ( \frac{\kappa - 1}{\kappa + 1} \right )^{2k} \| x_0 - x^* \|_2^2,\ \kappa = \frac{L}{\mu}
+		$$
+		Т.е. сходимость линейная в смысле определения $ \| x_{k+1} - x^{*} \|_2 \le Cq^{k}$ с $ q = \frac{\kappa - 1}{\kappa + 1} $.\\
+		Т.е. для достижения точности $ \eps $ нужно $ \mathcal{O}\left( \kappa \ln \frac{1}{\eps} \right) $ итераций.
+	\end{theorem}
+	\begin{theorem}[\textit{Выпуклая функция, оценка снизу}]$  $\\
+		$$
+			f(x_{k+1}) - f^{*} \ge \frac{3 \| x_0 - x^* \|_2^2 }{32L(k+1)^2}
+		$$
+		т.е. показатель сублинейной сходимости $ \alpha \in (-1,\ -0.5) $.\\
+		Более того, оценка верна для всех методов первого порядка, откуда следует оптимальность ме
+	\end{theorem}
+	\begin{theorem}[\textit{Сильно выпуклая функция, оценка снизу}]$  $\\
+		$$
+			f(x_{k+1}) - f^{*} \ge \frac{\mu}{2} \left (\frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1}\right )^{2k} \| x_0 - x^* \|_2^2 
+		$$
+		т.е. знаменатель прогрессии в линейной сходимости $ q \in \left (\frac{\kappa - 1}{\kappa + 1}; \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1}\right ) $.
+	\end{theorem}
+	\subsection{Метод тяжёлого шарика}
+	Основная формула\footnote{Дискретизация ОДУ второго порядка — затухающих колебаний в вязкой среде}:
+	$$
+		x_{k+1} = x_{k} - \alpha_k \nabla f(x_k) + \beta_k (x_k - x_{k-1})	
+	$$
+	\begin{theorem}[\textit{Сильно выпуклая функция, оценка сверху}]$  $\\
+		Пусть $ f $ — сильно выпуклая функция с липшицевым градиентом. Тогда:
+		\begin{gather*}
+			\alpha_k = \frac{4}{(\sqrt{L} + \sqrt{\mu})^2},\ \beta_k = \max \{ |1 - \sqrt{\alpha_k L}|,\ |1 - \sqrt{\alpha_k \mu}|\}^2 \implies \\
+			\implies \left \| \begin{bmatrix}
+				x_{k+1} - x^{*}\\
+				x_{k} - x^{*}
+			\end{bmatrix} \right \|_{2} \le \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1} \right) ^ k \left \| \begin{bmatrix}
+			x_{1} - x^{*}\\
+			x_{0} - x^{*}
+			\end{bmatrix} \right \|_{2}
+		\end{gather*}
+		Т.е. сходимость линейная в смысле определения $ \| x_{k+1} - x^{*} \|_2 \le Cq^{k}$ с $ q = \frac{\kappa - 1}{\kappa + 1} $.\\
+		Т.е. для достижения точности $ \eps $ нужно $ \mathcal{O}\left( \sqrt{\kappa} \ln \frac{1}{\eps} \right) $ итераций.
+	\end{theorem}
+	\subsection{Метод Нестерова}
+	Основные формулы:
+	\begin{align*}
+		x_{k+1} &= y_{k} - \alpha_k \nabla f(y_{k})\\
+		y_{k+1} &= x_{k+1} + \frac{k}{k+3} (x_{k+1} - x_{k})
+	\end{align*}
+	\begin{theorem}[\textit{Оценка сверху}]$  $\\
+		$$
+			f(x_{k+1}) - f^{*} \le \frac{2L \| x_{0} - x^{*} \|_2^2 }{(k+2)^2}
+		$$
+		Т.е. сходимость сублинейная в смысле$ \| x_{k+1} - x^{*} \|_2 \le Ck^{\alpha},\ \alpha < 0 $.\\
+		Т.е. для достижения точности $ \eps $ нужно $ \mathcal{O}\left( \frac{1}{\sqrt{\eps}} \right) $ итераций.
+	\end{theorem}
+	\subsection{Метод сопряжённых градиентов}
+	$$
+		\min \frac{1}{2} x^{\top} A x - b^{\top} x,\ A \in S^{n}_{++}
+	$$
+	Идея: каждым шагом устранять отличие $ x_k $ от $ x^* $ в одной координате (как минимум).\\
+	Факт: для этого не обязательно знать $ x^* $. По сути, обобщается идея предобуславливания.\\
+	\begin{definition}[\textit{А-ортогональность}]
+		$$  
+			x, y:\ x^{\top} A y = 0,\ A \in S^{n}_{++}
+		$$
+		Эквивалентно ортогональности относительно скалярного произведения с матрицей Грама $ A $.
+	\end{definition}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth]{conjugate_gradients.png}
+	\end{figure}
+	\noindent В алгоритме выстраивается последовательность $ A $-ортогональных векторов $ p_j $, через которые пересчитываются направления $ x_k $. Формулы пересчёта имеют вид:
+	\begin{gather*}
+		p_{0} = -r_{0} = Ax - b\\
+		x_{k+1} = x_{k} + \alpha_k p_{k} \\
+		r_{k+1} = r_{k} + \alpha_k A p_k\\ 
+		p_{k+1} = -r_{k+1} + \beta_{k+1} p_{k} \\
+		\alpha_{k+1} = -\frac{r_{k}^{\top}p_k}{p_k^{\top} A p_k},\ \beta_{k+1} = \frac{p_k^{\top} A r_{k+1}}{p_{k}^{\top} A p_{k}}
+	\end{gather*}
+	Где формула для $ \beta_{k+1} $ выводится из условия $A$-ортогональности векторов $ p_{k+1} $ и $ p_{k} $, а для $ \alpha_{k+1} $ — из условия $ r_{k} \perp p_{i},\ i = 1,\ldots,k-1 $. Тогда $ x_{k} = \underset{x\ \in P}{\arg\min} f(x),\ P = x_{0} + \mathrm{span} (p_0, \ldots, p_{k-1})$\\
+	Формулы пересчёта коэффициентов упрощаются:
+	\begin{align*}
+		\alpha_k &= -\frac{r_{k}^{\top} p_k}{p_k^{\top} A p_k} =\\
+		&= -\frac{r_{k}^{\top} (-r_k + \beta_k p_{k-1})}{p_k^{\top} A p_k}=\\
+		&= \frac{\| r_k \|_2^2}{p_k^{\top} A p_k} + \frac{r_k^{\top} p_{k-1}}{p_k^{\top} A p_k}= [r_k \perp p_{k-1}] =\\
+		&= \frac{\| r_k \|_2^2}{p_k^{\top} A p_k}\\
+		\beta_{k+1} &= \frac{r_{k+1}^{\top} A p_k}{p_k^{\top} A p_{k}} = [\alpha_k A p_k = r_{k+1} - r_{k}] =\\
+		&= \frac{r_{k+1}^{\top} (r_{k+1} - r_{k})}{(-r_{k} + \beta_k p_{k-1})^{\top} (r_{k+1} - r_{k})} =\\
+		&= \frac{\| r_{k+1} \|_2^2}{\| r_{k} \|_2^2}
+	\end{align*}
+	\begin{theorem}$  $
+		\begin{itemize}[$\diamond$]
+			\item $ r_k \perp r_i,\ i < k $
+			\item $ \mathrm{span} (r_0, \ldots, r_k) = \mathrm{span} (p_0, \ldots, p_k) = \mathrm{span} (r_0, Ar_0, \ldots, A^k r_0) $
+			\item $ p_k^{\top} A p_k = 0,\ i < k $
+			\item Метод сопряжённых градиентов оптимален для квадратичной целевой функции.\\ 
+			Он сходится за $ |\mathrm{spec} (A)| \le n $ итераций, где $ \mathrm{spec}(A) $ — спектр оператора A.
+			\item Справедлива оценка:
+			$$
+				f_k - f^{*} \le C \left ( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1} \right )^{k}\\
+			$$
+		\end{itemize}
+	\end{theorem}
+	\subsection{Метод Флетчера-Ривза}
+	Обобщение метода сопряжённый градиентов на неквадратичную целевую функцию.
+	\begin{itemize}[$\diamond$]
+		\item $ \alpha_k $ подбирается адаптивно (замкнутой формы нет)
+		\item $ \beta_k $ ищется с помощью градиентов $ \nabla f'(x_{k-1}), \nabla f'(x_{k-2}) $
+		\item $ r_k $ в формулах заменяется на $ \nabla f'(x_k) $ и пересчитывается в лоб
+	\end{itemize}
+	При этом:
+		\begin{itemize}[$\diamond$]
+		\item С ростом числа итераций направления $ p_k $ становятся всё более коллинеарными.
+		\item Не при любом способе выбора $ \alpha_k $ получается направление убывания.
+	\end{itemize}
+	Первая проблема решается рестартами, вторая разобрана не была.
+	\section{Проксимальные методы}
+	\subsection{PGM и его частные случаи}
+	\begin{definition}[\textit{Проксимальный оператор}]
+		$$
+			\mathrm{prox}_{\alpha f}(x) = \underset{u}{\arg\min} \left (f(u) + \frac{1}{2\alpha}\| x - u \|_2^2\right )
+		$$
+		Если $ f $ выпукла, то проксимальный оператор — сильно выпуклая функция.
+	\end{definition}
+	\begin{theorem}
+		Минимум функции будет неподвижной точкой проксимального оператора.
+	\end{theorem}
+	\begin{statement}
+		Для проксимального оператора выполнено некоторое подобие линейности:
+		$$
+			f(x) = \sum\limits_{i=1}^{n} f_{i}(x_i) \implies \underset{f}{prox}(v)_{i} = \underset{f_i}{prox}(v_i) 
+		$$
+	\end{statement}
+	\begin{definition}[\textit{Проксимальный градиентный метод}]$  $\\
+		Пусть выпуклая функция $ f $ представима в виде $ f = g + h $, где $ g $ выпукла и может принимать бесконечные значения, а $ h $ дифференцируемая и выпуклая. Тогда положим:
+		\begin{align*}
+			x_{k+1} &= \underset{\alpha_k g}{\mathrm{prox}} (x_k - \alpha_k \nabla h(x_k)) =\\
+							&= \underset{x}{\arg\min} \left (g(x) + \frac{1}{2\alpha_k} \| x - (x_k - \alpha_k \nabla h(x_k)) \|_2^2 \right ) =\\
+							&=  \underset{x}{\arg\min} \left (g(x) + h(x_k) + \langle \nabla h(x_k), x - x_k \rangle + \frac{1}{2\alpha_k} \| x - x_k \|_2^2 \right )
+		\end{align*}
+		Такой метод сходится как $ \mathcal{O}\left ( \frac{1}{k} \right ) $ для $ \alpha_k \equiv \mathrm{const} \in \left (0, \frac{1}{L}\right ] $, где $ L $ — константа Липшица для $ \nabla h $.\\
+		Видно, что:
+		\begin{enumerate}
+			\item Если $ g(x) := \begin{cases}
+				x,& x \in G\\
+				+\infty, &\text{otherwise}
+			\end{cases} $ — индикатор выпуклого множества $ G $, — то:
+			\begin{align*}
+				&\underset{x}{\arg\min} \left (g(x) + h(x_k) + \langle \nabla h(x_k), x - x_k \rangle + \frac{1}{2\alpha_k} \| x - x_k \|_2^2 \right ) =\\
+				&= \underset{x \in G}{\arg\min} \left ( h(x_k) + \langle \nabla h(x_k), x - x_k \rangle + \frac{1}{2\alpha_k} \| x - x_k \|_2^2 \right )
+			\end{align*}
+			— т.н. \textit{метод проекции градиента}.
+			\item Если $ h(x) \equiv 0 $, то получаем \textit{проксимальный метод}.
+			\item Если $ g(x) \equiv 0 $, то получаем градиентный спуск (при $ \alpha_k = \frac{1}{L} $).
+		\end{enumerate}
+		Сходимость каждого метода аналогична оной у градиентного спуска (с поправкой на то, что в методе проекции градиента нужно учесть сложность вычисления проекции точки на множество). 
+	\end{definition}
+	\begin{theorem}[\textit{Метод проекции градиента, оценка сверху}]$  $\\
+		Если $ f $ выпуклая с липшицевым градиентом на замкнутом выпуклом мн-ве $ P $, то при $ \alpha \in \left (0, \frac{2}{L} \right ] $:		
+		\begin{itemize}[$\diamond$]
+			\item $ x_k \to x^{*} $ сублинейно, а в случае сильной выпуклости — линейно со знаменателем $ q $
+			\item Если при этом $ \exists l > 0 \forall x \in P: \nabla^2 f(x) \succeq l \textbf{I} $, то $ q = \max \{ |1 - \alpha l|, |1 - \alpha L| \} $
+		\end{itemize}
+	\end{theorem}
+	\begin{definition}[\textit{FISTA}\footnote{Fast Iterative Shrinkage-Thresholding Algorithm}]
+		Аналог метода Нестерова для проксимального градиентного метода:
+		\begin{align*}
+			y_{1} &:= x_{0},\ t_{1} := 1,\ k = 1\\
+			x_{k} &:= \underset{\alpha_k g}{y_k - \alpha_k \nabla h(y_k)}\\
+			y_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
+			y_{k+1} &:= x_{k} + \frac{t_k - 1}{t_{k+1}}(x_k - x_{k-1})
+		\end{align*}
+	\end{definition}
+	\begin{theorem}[\textit{О сходимости FISTA}]$  $\\
+		\bgroup
+		\def\arraystretch{1.5}
+		\begin{tabular}{c|c|c|c}
+			\hline 
+			& шаг & скорость сходимости & число итераций\\
+			\hline
+			$ h $ выпуклая с липшицевым градиентом & $ \alpha_k \equiv \frac{1}{k} $ & $ \mathcal{O}\left (  \frac{1}{k^2} \right ) $ & $ \mathcal{O}\left (  \frac{1}{\sqrt{\eps}} \right ) $  \\
+			\hline
+			$ h $ сильно выпуклая с липшицевым градиентом & $ \alpha_k \equiv \frac{1}{k} $ & $ \mathcal{O}\left ( \left ( 1 - \frac{1}{\sqrt{\kappa}} \right )^{k} \right ) $ & $ \mathcal{O}(\sqrt{\kappa} \log \frac{1}{\eps}) $ \\
+			\hline 
+		\end{tabular}
+		\egroup
+	\end{theorem}
+	\noindent \textbf{Pro:}
+	\begin{itemize}[$\diamond$]
+		\item Часто проекцию можно вычислить аналитически
+		\item При этом сходимость аналогична градиентому спуску в безусловной оптимизации
+		\item Обобщается на негладкий случай
+	\end{itemize}
+	\textbf{Contra:}
+	\begin{itemize}[$\diamond$]
+		\item Проекция не всегда вычисляется за $ \mathcal{O}(1) $ (пример — проекция на политоп)
+		\item При обновлении градиента может меняться структура задачи (из-за свойств множества)
+	\end{itemize}
+	\section{Условные методы первого порядка}
+	\subsection{Метод Франка-Вольфе (условного градиента)}
+	Идея: в методе градиентного спуска подбирать направление и длину шага так, чтобы не выходить за пределы множества. Это возможно, если ограничения задают выпуклое замкнутое множество.\\
+	$$
+		f(x_k + s_k) \approx f(x_k) + \langle \nabla f(x_k), s_k \rangle \to \min_{s_k \in P}
+	$$	
+	Направление $ s_k - x_k $ называется \textit{условным градиентом} функции $ f $ в точке $ x_k $ на мн-ве $ P $.
+	В силу выпуклости, $ f(s) \ge f(x_k) + \langle \nabla f(x_k), s - x_k \rangle $, откуда получаем аналог зазора двойственности:
+	$$
+		f(x) - f(x^*) \le -\min_{s \in P} \langle \nabla f(x_k), x - s \rangle = \max_{s \in P} \langle \nabla f(x_k), x - s \rangle = g(x)
+	$$
+	\begin{theorem}[\textit{Метод условного градиента, оценка сверху}]$  $\\
+		Пусть $ f $ выпуклая с липшицевым градиентом на выпуклом компакте $ X $. Тогда при $ \alpha_k = \frac{2}{k+1} $:
+		$$
+			f(x_k) - f(x^*) \le \frac{2d^2L}{k+2},\ k \ge 1,\ d = \mathrm{diam}(X)
+		$$
+		Полученная сублинейная скорость сходимости не зависит от размерности. Тем не менее, она неулучшаема даже для сильно выпуклых функций, а метод не обобщается на негладкий случай.
+	\end{theorem}
+	\section{Стохастические методы}
+	\section{Методы второго порядка}
+	\subsection{Метод Ньютона}
+	Основная формула: 
+	$$
+		x_{k+1} = x_{k} - (\nabla^2 f(x_k))^{-1} \nabla f(x_{k})
+	$$
+	Выводится из квадратичной аппроксимации при $ \nabla^2 f(x) \succ 0 $:
+	\begin{align*}
+		f(x + h) &\approx \left. f(x) + \nabla f(x)^{\top} h + \frac{1}{2} h^{\top} \nabla^2 f(x) h\ \middle|\ \frac{\partial}{\partial h} \right.  \\
+		0 &= \nabla f(x) + \nabla^2 f(x) h\\
+		h &= -(\nabla^2 f(x))^{-1} \nabla f(x)
+	\end{align*}
+	Аналогичный метод применяется для решения систем нелинейных уравнений:
+	\begin{align*}
+		G(x) &= 0,\quad G : \Real^{n} \to \Real^{n}\\
+		G(x_k + \Delta x) &\approx G(x_k) + \nabla G(x_k) \Delta x = 0\\
+		\Delta x &= -(\nabla G(x_k))^{-1} G(x_{k})\\
+		x_{k+1} &= x_{k} - (\nabla G(x_k))^{-1} G(x_{k})
+	\end{align*}
+	Можно заметить, что необходимость решать такие системы возникает из условий оптимальности:
+	$$
+		f'(x^{*}) = G(x) = 0	
+	$$
+	\begin{definition}[\textit{Демпфированный метод Ньютона}]
+		$$
+			x_{k+1} = x_{k} - \alpha_k (\nabla^2 f(x_k))^{-1} \nabla f(x_k)
+		$$
+		Адаптивный выбор размера шага расширяет область сходимости.
+	\end{definition}
+	\begin{theorem}[\textit{Характер сходимости в методе Ньютона}]$  $\\
+		Пусть 
+		\begin{enumerate}
+			\item $ f(x) $ локально сильно выпукла с константой $ \mu $: $ \exists x^{*}: \nabla^2 f(x^*) \succeq \mu I $ 
+			\item Её гессиан липшицев с константой $ M $: $ \| \nabla^2 f(x) - \nabla^2 f(y) \| \le M \| x - y \| $
+			\item Начальная точка достаточно близка к оптимальной: $ \| x_0 - x^* \| \le \frac{2\mu}{3M} $
+		\end{enumerate}
+		Тогда метод Ньютона сходится квадратично:
+		$$
+			\| x_{k+1} - x^* \| \le \frac{M \| x_k - x^* \|^2}{2(\mu - M \| x_k - x^* \|)}
+		$$
+		Т.е. для достижения точности $ \eps $ нужно $ \mathcal{O} \left (\log\log \frac{1}{\eps}\right ) $ итераций.
+	\end{theorem}
+	\subsection{Квазиньютоновские методы}
+	Мотивированы тем, что в методе Ньютона нужно явно хранить гессиан ($ \mathcal{O}(n^2) $ памяти) и обращать его ($ \mathcal{O}(n^3) $ операций) на каждой итерации. Кроме того, на очередной итерации он может оказаться вырожденным. Этих недостатков можно избавиться, если заменить гессиан на его приближение и придумать разумные формулы пересчёта. Посмотрим на две крайности:
+	\begin{itemize}[$\diamond$]
+		\item \textbf{Градиентный спуск:}
+		\begin{align*}
+			f(x + h) &\le f(x) + \langle \nabla f(x), h \rangle + \frac{1}{2\alpha} h^{\top} \textcolor{red}{I} h,\ \alpha \in (0, L^{-1}]\\
+			\min_{h} f_{g}(h) &\implies h^{*} = -\alpha\nabla f(x)\\
+			x_{k+1} &= x_{k} - \alpha_k \nabla f(x_k)
+		\end{align*}
+		\item \textbf{Метод Ньютона:}
+		\begin{align*}
+			f(x + h) &\approx f(x) + \langle \nabla f(x), h \rangle + \frac{1}{2\alpha} h^{\top} \textcolor{red}{\nabla^2 f(x)} h,\ \nabla^2 f(x) \succ 0 \\
+			\min_{h} f_{N}(h) &\implies h^{*} = -(\nabla^2 f(x))^{-1} \nabla f(x)\\
+			x_{k+1} &= x_{k} - (\nabla^2 f(x_k))^{-1} \nabla f(x_k) 
+		\end{align*}
+	\end{itemize}
+	Все квазиньютоновские методы находятся "между ними":
+	\begin{align*}
+		f_{q}(h) := f(x + h) &\approx f(x) + \langle \nabla f(x), h \rangle + \frac{1}{2\alpha} h^{\top} \textcolor{red}{B_k} h,\ B_k \succ 0\\
+		\min_{h} f_{q}(h) &\implies h^{*} = -B_k^{-1} \nabla f(x) \\
+	x_{k+1} &= x_{k} - B_k^{-1} \nabla f(x_k) =\\
+					&= x_{k} - H_k \nabla f(x_k)
+	\end{align*}
+	К $ B_k $, кроме близости к гессиану по матричной норме, предъявляются следующие требования:
+	\begin{itemize}[$ \diamond $]
+		\item Быстрый пересчёт $ B_k \to B_{k+1} $, когда доступны только градиенты.
+		\item Быстрый поиск направления $ h_k $.
+		\item Возможность компактного хранения $ B_k $.
+		\item Сверхлинейная сходимость.
+	\end{itemize}
+	Для обновления $ B_k $ есть следующие 2 правила:
+	\begin{enumerate}
+		\item \textbf{Правило двух градиентов:} 
+			\begin{align*}
+				f'_{q}(-\alpha_k h_k) &= f'(x_k) \implies \nabla f(x_{k+1}) - \alpha_k B_{k+1} h_k = \nabla f(x_k) \\
+				f'_{q}(0) &= f'(x_{k+1})
+			\end{align*}
+		\item \textbf{Secant equation:}
+		\begin{align*}
+			s_{k} &:= x_{k+1} - x_{k}\\
+			y_{k} &:= \nabla f(x_{k+1}) - \nabla f(x_k)\\
+			B_{k+1} s_k &= y_k
+		\end{align*}
+	\end{enumerate}
+	\subsection{Barzilai-Borwein}
+	Аппроксимация гессиана диагональной матрицей:
+	$$
+		\alpha_k \nabla f(x_k) = \alpha_k I \nabla f(x_k) = \left ( \frac{1}{\alpha_k} I \right )^{-1} \nabla f(x_k) \approx (\nabla^2 f(x))^{-1} \nabla f(x)
+	$$
+	Квазиньютоновское уравнение принимает вид:
+	$$
+		\alpha_k^{-1} s_{k-1} \approx y_{k-1}
+	$$
+	Отсюда естественным образом возникает задача наименьших квадратов:
+	$$
+		\min_{\alpha_k} \frac{1}{2} \| s_{k-1} - \alpha_{k} y_{k-1} \|_2^2 \implies \alpha_k = \frac{s_{k-1}^{\top} y_{k-1}}{y_{k-1}^{\top} y_{k-1}}
+	$$
+	Хотя её можно поставить иначе (скажем, в другой норме) и получить другие методы.
+	\subsection{DFP}
+	Поиск $ B_{k+1} $ сам по себе записывается в форме задачи оптимизации:
+	\begin{align*}
+		B_{k+1} = &\underset{B}{\arg\min} \| B_k - B \|_2^2\\
+							&\text{s.t. } 
+							\begin{aligned} 
+								B^{\top} &= B\\ 
+								B s_k &= y_k
+							\end{aligned}
+	\end{align*}
+	Замкнутый вид решения, откуда $ H_{k+1} $ получается по формуле ШМВ:
+	\begin{align*}
+		B_{k+1} &= (I - \rho_k y_k s_k^\top) B_k (I - \rho_k s_k y_k^{\top}) + \rho_k y_k y_k^{\top},\ \rho_k = \frac{1}{y_k^\top s_k}\\
+		B_{k+1}^{-1} &= H_{k+1} = H_k - \frac{H_k y_k y_k^{\top} H_k}{y_k^\top H_k y_k} + \frac{s_k s_k^\top}{y_k^\top s_k}
+	\end{align*}
+	\subsection{(L-)BFGS}
+	Аналогичная задача оптимизации ставится сразу для $H_{k+1}$:
+	\begin{align*}
+		H_{k+1} = &\underset{H}{\arg\min} \| H_k - H \|_2^2\\
+		&\text{s.t. } 
+		\begin{aligned} 
+		H^{\top} &= H\\ 
+		H y_k &= s_k
+		\end{aligned}
+	\end{align*}
+	Замкнутый вид решения, откуда $ H_{k+1} $ получается по формуле ШМВ:
+	$$
+		H_{k+1} = (I - \rho_k s_k y_k^\top) H_k (I - \rho_k y_k s_k^{\top}) + \rho_k s_k s_k^{\top},\ \rho_k = \frac{1}{y_k^\top s_k}
+	$$
+	\begin{theorem}
+		Если $ f $ сильно выпуклая с липшицевым гессианом, то при некоторых дополнительных технических допущениях BFGS сходится сверхлинейно.
+	\end{theorem}
+	\noindent Если размерность велика, хранить эти матрицы целиком становится непрактично.\\
+	Т.е. нужна процедура эффективного умножения на вектор $ \nabla f(x) $.\\
+	Также есть проблема, что значения $ s_k, y_k $ на первых итерациях могут портить оценку $ B_k, H_k $ на более поздних итерациях.	Модификация L-BFGS позволяет рекурсивно вычислять $ H_{k+1} \nabla f(x_k) $ за счёт хранения только последних $ m \ll n $ значений $ (s_k, y_k) $ и обновления $ H_{m,0} $. 
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth]{L-BFGS.png}
+	\end{figure}
+	\noindent Отсюда получаем $ \mathcal{O}(n^2) $ операций на одну итерацию и линейную сложность по памяти.\\
+	Тем не менее, у метода есть недостатки:
+	\begin{itemize}[$\diamond$]
+		\item Он не рандомизируется.
+		\item Нужно подбирать $ B_0 $ или $ H_0 $.
+		\item Для него нет разработанной теории сходимости и точных оценок.
+		\item Не любой способ выбора шага гарантирует, что $ y_k^\top s_k > 0 $.
+	\end{itemize}
+	\section{Линейное программирование}
+	\section{Полуопределённое программирование}
+	\section{Методы внутренней точки}
+\end{document}     
