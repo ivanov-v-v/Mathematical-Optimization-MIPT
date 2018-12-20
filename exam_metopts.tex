@@ -213,7 +213,7 @@
 	\subsection{PGM и его частные случаи}
 	\begin{definition}[\textit{Проксимальный оператор}]
 		$$
-			\mathrm{prox}_{\alpha f}(x) = \underset{u}{\arg\min} \left (f(u) + \frac{1}{2\alpha}\| x - u \|_2^2\right )
+			\underset{\alpha f}{\mathrm{prox}}(x) = \underset{u}{\arg\min} \left (f(u) + \frac{1}{2\alpha}\| x - u \|_2^2\right )
 		$$
 		Если $ f $ выпукла, то проксимальный оператор — сильно выпуклая функция.
 	\end{definition}
@@ -262,7 +262,7 @@
 		\begin{align*}
 			y_{1} &:= x_{0},\ t_{1} := 1,\ k = 1\\
 			x_{k} &:= \underset{\alpha_k g}{\mathrm{prox}}(y_k - \alpha_k \nabla h(y_k))\\
-			xt_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
+			t_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
 			y_{k+1} &:= x_{k} + \frac{t_k - 1}{t_{k+1}}(x_k - x_{k-1})
 		\end{align*}
 	\end{definition}
@@ -309,7 +309,6 @@
 		$$
 		Полученная сублинейная скорость сходимости не зависит от размерности. Тем не менее, она неулучшаема даже для сильно выпуклых функций, а метод не обобщается на негладкий случай.
 	\end{theorem}
-	\section{Стохастические методы}
 	\section{Методы второго порядка}
 	\subsection{Метод Ньютона}
 	Основная формула: 
@@ -339,7 +338,7 @@
 		$$
 		Адаптивный выбор размера шага расширяет область сходимости.
 	\end{definition}
-	\begin{theorem}[\textit{Характер сходимости в методе Ньютона}]$  $\\
+	\begin{theorem}[\textit{Характер сходимости в методе У а}]$  $\\
 		Пусть 
 		\begin{enumerate}
 			\item $ f(x) $ локально сильно выпукла с константой $ \mu $: $ \exists x^{*}: \nabla^2 f(x^*) \succeq \mu I $ 
@@ -752,4 +751,139 @@
 	$$
 	В целом, SDP часто применяется в комбинаторной оптимизации.
 	\section{Методы внутренней точки}
+	\subsection{Задача выпуклой оптимизации с ограничениями типа равенств}
+	\begin{align*}
+		\min& f(x)\\
+		\text{s.t. }& Ax = b
+	\end{align*}
+	где $f$ — выпукла и дважды дифф-ма, $ A \in \Real^{p \times n},\ \mathrm{rk} (A) = p < n $.\\
+	Двойственная задача:
+	\begin{align*}
+		g(\mu) &= -b^\top \mu + \inf_{x}(f(x) + \mu^\top A x) =\\
+					 &= -b^\top \mu - \sup_{x}((-A^\top \mu)^\top x - f(x)) =\\
+					 &= -b^\top \mu - f^{*}(-A^\top \mu)
+	\end{align*}
+	\begin{align*}
+		\max_{\mu}&\ -b^\top \mu - f^*(-A^\top \mu)\\
+		\text{s.t. }& \mu \succeq 0
+	\end{align*}
+	Условия оптимальности прямой задачи при этом имеют вид:
+	\begin{gather*}
+		Ax^* = b,\quad \nabla f(x^*) + A^\top \mu^* = 0\\
+		\begin{bmatrix}
+			\nabla f & A^\top\\
+			A & 0
+		\end{bmatrix} \begin{bmatrix}
+			x^*\\
+			\mu^* 
+		\end{bmatrix} = 
+		\begin{bmatrix}
+			0\\
+			b
+		\end{bmatrix}
+	\end{gather*}
+	Такую систему можно решать методом Ньютона, если $ f $ дважды дифференцируема с липшицевым гессианом и ограничена снизу. Причём часто минимизируют квадратичную аппроксимацию:
+	\begin{align*}
+		\min_{v}&\ f(x) + \nabla f(x)^{\top} v + \frac{1}{2} v^{\top} \nabla^2 f(x) v\\
+		\text{s.t. }& A(x + v) = b
+	\end{align*}
+	Условия оптимальности для такой задачи выгодно линеаризуются:
+	\begin{align*}
+		A(x + v^*) &= b \iff Av^* = 0\\
+		\nabla f(x + v^*) + A^\top w &\approx \nabla f(x) + \nabla^2 f(x)^{\top} v^* + A^\top w = 0\\
+		&\implies \nabla^2 f(x)^{\top} v^* + A^\top w = -\nabla f(x)
+ 	\end{align*}
+ 	Отсюда получаем систему:
+ 	$$
+ 		\begin{bmatrix}
+	 		\nabla^2 f(x)  & A^\top\\
+	 		A & 0 
+ 		\end{bmatrix} 
+ 		\begin{bmatrix}
+	 		v\\
+	 		w
+ 		\end{bmatrix} = 
+ 		\begin{bmatrix}
+	 		-\nabla f(x)\\
+	 		0
+ 		\end{bmatrix} 
+ 	$$
+ 	Как понять, что пора прекращать итерации? По сути, мы ищем оптимальное квадратичное приближение на допустимом множестве. Остаток запишется так: 
+ 	$$
+		f(x) - \inf_{v} (\widehat{f}(x + v)\ |\ A(x + v) = b) 		
+ 	$$
+ 	где $ \widehat{f} $ — квадратичная аппроксимация функции $ f $.
+ 	Преобразуем одно из условий оптимальности.\\
+ 	Пусть $ h $ — направление убывания в точке $ x $. Тогда:
+ 	\begin{align*}
+	 	\nabla^2 f(x) h + A^\top w &= -\nabla f(x)\ |\ h^{\top}\\
+	 	h^\top \nabla^2 f(x) h + (Ah)\top w &= -h^\top \nabla f(x)\
+	 	[Ah = 0]\\
+	 	h^\top \nabla^2 f(x) h &= - \nabla f(x)^\top h
+ 	\end{align*}
+ 	$$
+	 	\inf_{v} (\widehat{f}(x + v)\ |\ A(x + v) = b) = f(x) - \frac{1}{2} h^{\top} \nabla^2 f(x) h
+	$$
+ 	Т.е. $ h^\top \nabla^2 f(x) h $ — наиболее разумный критерий остановки метода Ньютона в такой задаче.\\
+ 	\begin{theorem}[\textit{О скорости сходимости}]$  $\\
+ 		Скорость сходимости аналогична сходимости метода Ньютона в безусловной оптимизации.\\
+ 		Пусть выполнены следующие условия:
+ 		\begin{itemize}[$\diamond$]
+ 			\item Множество уровней $ S = \{ x \in D(f)\ |\ f(x) \le f(x_0), Ax = b \} $ замкнуто, а $ x_0 \in D(f),\ Ax_0 = b $.
+ 			\item $ \nabla^2 f $ липшицев на $ S $.
+ 			\item Норма обратной матрицы ККТ системы ограничена сверху.
+ 		\end{itemize}
+	 	Тогда метод Ньютона сходится к паре $ (x^*, \mu^*) $ глобально линейно, но локально квадратично.
+ 	\end{theorem}
+ 	\noindent Если же начальная точка не лежит в допустимом множестве. Тогда ККТ можно записать так:
+ 	$$
+ 		\begin{bmatrix}
+	 		\nabla^2 f(x) & A^\top\\
+	 		A & 0
+ 		\end{bmatrix}
+ 		\begin{bmatrix}
+	 		v\\
+	 		w
+ 		\end{bmatrix} = -
+ 		\begin{bmatrix}
+ 			\nabla f(x)\\
+ 			Ax - b
+ 		\end{bmatrix}
+ 	$$
+ 	При таком подходе достаточно, чтобы $ x_0 \in D(f) $, а такую точку найти сильно проще.
+	\subsection{Общая задача выпуклой оптимизации. Барьерные методы}
+	\begin{align*}
+		\min_{x \in \Real^n}&\ f_0(x)\\
+		\text{s.t. }& f_i(x) \le 0\quad i = 1,\ldots,m\\
+								& Ax = b
+	\end{align*}
+	где ограничения выпуклые, дважды непрерывно дифференцируемые, а $ A \in \Real^{p \times n},\ \mathrm{rk}(A) = p < n $.\\
+	Будем предполагать, что условия Слейтера выполнены, т.е. имеется сильная двойственность.\\
+	Условия ККТ:
+	\begin{align*}
+		&Ax^* = b,\ f_i(x^*) \le 0\\
+		&\lambda_i^* f_i(x^*) = 0\\
+		&\lambda^* \succeq 0\\
+		&\nabla_{x} \mathcal{L}(x^*, \mu^*, \lambda^*) = \nabla f_0(x^*) + \sum_{i=1}^{m} \lambda_i^* \nabla f_i(x^*) + A^\top \mu^{*} = 0
+	\end{align*}
+	Ограничения типа неравенств можно перенести в целевую функцию, используя индикаторы:
+	$$
+		I_{-}(u) = \begin{cases}
+			0, & u \le 0\\
+			+\infty, & u > 0
+		\end{cases}
+	$$
+	Целевая функция при этом перестаёт быть дифференцируемой, в связи с чем индикатор приближают барьерами — последовательностью выпуклых дважды дифференцируемых функций $ g(t, x) $, которая в пределе (при $ t \to 0 $) сходится к индикатору.
+	\begin{align*}
+		\min_{x}&\ f(x) + \sum_{i=1}^{m} -t\log (-f_i(x))\\
+		\text{s.t. }& Ax = b
+	\end{align*}
+	Эту задачу уже можно решать, как описано в предыдущем разделе.\\
+	Тем не менее, барьерный метод требует допустимой начальной точки. Отсюда возникает естественное разделение алгоритма на две фазы: в первой ищется начальное приближение, а во второй оно используется на итерации барьерного метода.\\
+	Первую фазу можно реализовать, например, так:
+	\begin{align*}
+		\min_{x,s}&\ \sum_{i=1}^{m} s_i\\
+		\text{s.t. }& f_i(x) \le s_i\\
+								& Ax = b
+	\end{align*}
 \end{document}     
