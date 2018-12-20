@@ -261,8 +261,8 @@
 		Аналог метода Нестерова для проксимального градиентного метода:
 		\begin{align*}
 			y_{1} &:= x_{0},\ t_{1} := 1,\ k = 1\\
-			x_{k} &:= y_k - \alpha_k \nabla h(y_k)\\
-			y_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
+			x_{k} &:= \underset{\alpha_k g}{\mathrm{prox}}(y_k - \alpha_k \nabla h(y_k))\\
+			t_{k+1} &:= \frac{1 + \sqrt{1 + 4t_k^2}}{2}\\
 			y_{k+1} &:= x_{k} + \frac{t_k - 1}{t_{k+1}}(x_k - x_{k-1})
 		\end{align*}
 	\end{definition}
